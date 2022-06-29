@@ -13,3 +13,7 @@ which flask uses to locate the Blueprint's resources
 @site.route('/')
 def home():
     return render_template('index.html')
+
+@site.route('/profile')
+def profile():
+    return render_template('profile.html')
