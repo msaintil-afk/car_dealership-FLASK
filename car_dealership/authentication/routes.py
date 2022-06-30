@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from car_dealership.models import User, db, check_password_hash
-from car_dealership.forms import UserLoginForm
+from car_dealership.forms import UserLoginForm,UserSignUpForm
 
 # Import from flask login
 from flask_login import login_user, logout_user, current_user, login_required
@@ -9,14 +9,16 @@ auth = Blueprint('auth', __name__, template_folder = 'auth_templates')
 
 @auth.route('/signup', methods = ['GET', 'POST'])
 def signup():
-    form = UserLoginForm()
+    form = UserSignUpForm()
     try:
         if request.method == "POST" and form.validate_on_submit():
             email = form.email.data
             password = form.password.data
+            first_name = form.first_name.data
+            last_name = form.last_name.data
             print(email, password)
 
-            user = User(email, password = password)
+            user = User(email,first_name=first_name,last_name=last_name, password = password )
 
             db.session.add(user)
             db.session.commit()
@@ -52,3 +54,9 @@ def signin():
         raise Exception('Invalid Form Data: Please Check Your Form')
 
     return render_template('signin.html', form=form)
+
+@auth.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('site.home'))

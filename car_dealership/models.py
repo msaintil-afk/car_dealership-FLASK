@@ -10,9 +10,21 @@ from werkzeug.security import generate_password_hash, check_password_hash
 #generate tokens for users
 import secrets
 
-db = SQLAlchemy()
+# Imports for Flask_Login
+from flask_login import UserMixin, LoginManager
 
-class User(db.Model):
+# Import for Flask-Marshmallow
+from flask_marshmallow import Marshmallow
+
+db = SQLAlchemy()
+login_manager = LoginManager()
+ma = Marshmallow()
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
+class User(db.Model, UserMixin):
     id = db.Column(db.String, primary_key = True)
     first_name = db.Column(db.String(150), nullable = True, default='')
     last_name = db.Column(db.String(150), nullable = True, default = '')
@@ -21,7 +33,7 @@ class User(db.Model):
     g_auth_verify = db.Column(db.Boolean, default = False)
     token = db.Column(db.String, default = '', unique = True )
     date_created = db.Column(db.DateTime, nullable = False, default = datetime.utcnow)
-    # todo: add drone relationaship 
+    car = db.relationship('Car', backref = 'owner', lazy = True)
 
     def __init__(self,email,first_name = '', last_name = '', id = '', password = '', token = '', g_auth_verify = False):
             self.id = self.set_id()
@@ -44,3 +56,37 @@ class User(db.Model):
 
     def __repr__(self):
         return f'User {self.email} has been added to the database'
+
+class Car(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    name = db.Column(db.String(150))
+    make = db.Column(db.String(200), nullable = True)
+    model = db.Column(db.String(200), nullable = True)
+    year = db.Column(db.String(45))
+    color = db.Column(db.String(100))
+    price = db.Column(db.Numeric(precision=10, scale=2))
+    user_token = db.Column(db.String, db.ForeignKey('user.token'), nullable = False)
+
+    def __init__(self, name, make, model, year, color, price, user_token, id = '' ):
+        self.id = self.set_id()
+        self.name = name
+        self.make = make
+        self.model = model
+        self.year = year
+        self.color = color
+        self.price = price
+        self.user_token = user_token
+
+    def __repr__(self):
+            return f"The following Car has been added: {self.name}"
+    
+    def set_id(self):
+        return secrets.token_urlsafe()
+
+# Creation of API Schema via the Marshmallow Object
+class CarSchema(ma.Schema):
+    class Meta: 
+        fields = ['id', 'name', 'make', 'model', 'year', 'color', 'price']
+
+car_schema = CarSchema()
+cars_schema = CarSchema(many = True)
