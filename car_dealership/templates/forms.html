@@ -2,7 +2,7 @@
 <form method="POST">
     {{ form.hidden_tag() }}
     <div class="form-group">
-
+        {% if form.first_name %}
         <fieldset id="first_name-field">
             {{ form.first_name.label }}
             {{ form.first_name(class = "form-control", placeholder = "Enter First Name Here...")}}
@@ -12,7 +12,7 @@
             {{ form.last_name.label }}
             {{ form.last_name(class = "form-control", placeholder = "Enter Last Name Here...")}}
         </fieldset>
-
+        {% endif %}
         <fieldset id="email-field">
             {{ form.email.label }}
             {{ form.email(class = "form-control", placeholder = "Enter Email Here...")}}
