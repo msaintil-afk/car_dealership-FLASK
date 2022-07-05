@@ -41,7 +41,7 @@ def get_cars(current_user_token):
     response = cars_schema.dump(cars)
     return jsonify(response)
 
-# Retrieve ONE Drone Endpoint
+# Retrieve ONE car Endpoint
 @api.route('/cars/<id>', methods = ['GET'])
 @token_required
 def get_car(current_user_token, id):
